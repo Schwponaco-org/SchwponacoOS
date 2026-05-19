@@ -5,3 +5,4 @@ end
 alias fuck="nvim"
 
 alias swag="start-hyprland"
+
