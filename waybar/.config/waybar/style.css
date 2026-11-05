@@ -1,6 +1,7 @@
 * {
-    font-family: 'JetBrainsMono Nerd Font', Monospace;
-    font-size: 1em;
+    font-family: 'Helvetica Neue', Monospace;
+    font-weight: 500;
+    font-size: 1.01em;
 }
 
 #waybar {
@@ -43,7 +44,19 @@
 #battery,
 #network,
 #pulseaudio {
-    margin-right: 50px;
+    margin-right: 40px;
+}
+
+tooltip {
+    background-color: #191919;
+    border: 1px solid #333333;
+    border-radius: 0px;
+}
+
+tooltip label {
+    font-family: 'Helvetica Neue', Monospace;
+    color: #BBBBBB;
+    padding: 6px 10px;
 }
 
 #battery.critical:not(.charging) {

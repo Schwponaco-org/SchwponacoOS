@@ -182,3 +182,5 @@ zoxide_support = false
 png = "swayimg"
 jpg = "swayimg"
 pdf = "zathura"
+exe = "wine"
+xcf = "gimp"

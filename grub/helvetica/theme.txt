@@ -1,0 +1,36 @@
+# Minimal Helvetica GRUB theme; install with ../install-theme.sh
+# Font names are what grub-mkfont writes: family, Regular/Bold and size (Medium shows up as "Regular").
+title-text: ""
+desktop-image: "background.jpg"
+desktop-image-scale-method: "crop"
+desktop-color: "#191919"
+
+# menu sits on the dark floor of the photo; it ends above the countdown
++ boot_menu {
+    left = 6%
+    top = 62%
+    width = 40%
+    height = 22%
+    item_font = "Helvetica Neue Bold 32"
+    item_color = "#999999"
+    selected_item_font = "Helvetica Neue Bold 32"
+    selected_item_color = "#FFFFFF"
+    item_height = 44
+    item_padding = 0
+    item_spacing = 6
+    icon_width = 0
+    icon_height = 0
+    item_icon_space = 0
+    scrollbar = false
+}
+
++ label {
+    id = "__timeout__"
+    left = 6%
+    top = 86%
+    width = 40%
+    height = 24
+    text = "Booting in %d s"
+    font = "Helvetica Neue Regular 18"
+    color = "#999999"
+}

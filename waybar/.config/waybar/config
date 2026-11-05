@@ -10,13 +10,12 @@
         "custom/wireguard"
     ],
     "modules-center": [
-        "hyprland/window"
     ],
     "modules-right": [
         "network",
         "pulseaudio",
         "battery",
-        "clock",
+        "clock"
     ],
 
     "custom/wireguard": {
@@ -29,24 +28,34 @@
         "format": ""
     },
 
-    "hyprland/window": {
-        "format": "{class}"
-    },
-    
     "clock": {
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%d/%m/%Y}"
+        // zero-width space in Nerd Font: matches line height of icon modules so clock lines up
+        "format": "<span font_family='JetBrainsMono Nerd Font'>\u200b</span>{:%a %H:%M}",
+        "format-alt": "<span font_family='JetBrainsMono Nerd Font'>\u200b</span>{:%a %d/%m/%Y}",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "calendar": {
+            "format": {
+                "months": "<span font_family='Helvetica Neue' weight='bold' size='large' foreground='#FFFFFF'>{}</span>",
+                "weekdays": "<span font_family='Helvetica Neue Calendar' weight='bold' foreground='#666666'>{}</span>",
+                "days": "<span font_family='Helvetica Neue Calendar' weight='bold' foreground='#BBBBBB'>{}</span>",
+                "today": "<span font_family='Helvetica Neue Calendar' weight='bold' background='#BBBBBB' foreground='#191919'><b>{}</b></span>"
+            }
+        }
     },
     "battery": {
         "states": { "warning": 30, "critical": 15 },
-        "format": "{icon}  {capacity}%",
-        "format-full": "{icon}  {capacity}%",
-        "format-charging": "{icon}  {capacity}%",
-        "format-plugged": "{icon}  {capacity}%",
-        "format-icons": ["", "", "", "", ""] 
+        "format": "{icon}",
+        "format-charging": "{icon}",
+        "format-plugged": "{icon}",
+        "format-full": "{icon}",
+        "format-icons": [" ", " ", " ", " ", " "],
+        "tooltip-format": "{capacity}%",
+        "tooltip-format-charging": "{capacity}% · Charging",
+        "tooltip-format-plugged": "{capacity}% · Full",
+        "tooltip-format-full": "{capacity}% · Full"
     },
     "network": {
-        "format-wifi": "  {essid}",
+        "format-wifi": "   {essid}",
         "format-ethernet": "{ipaddr}/{cidr}",
         "tooltip-format": "{ifname} via {gwaddr}",
         "format-linked": "{ifname} (No IP)",
@@ -54,16 +63,16 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
-        "format": "{icon}  {volume}%",
-        "format-bluetooth": "{icon}  {volume}%",
+        "format": "{icon}",
+        "format-bluetooth": "",
         "format-bluetooth-muted": " ",
         "format-muted": "",
         "format-icons": {
-            "headphone": "",
-            "phone": "",
-            "phone-muted": "",
-            "portable": "",
-            "default": ["", ""]
+            "headphone": " ",
+            "phone": " ",
+            "phone-muted": " ",
+            "portable": " ",
+            "default": [" ", " "]
         },
         "tooltip": false,
         "on-click": "pavucontrol",

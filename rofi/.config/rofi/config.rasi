@@ -1,8 +1,12 @@
 configuration {
-    modi: "drun,window";
+    /* "_web" first: combi hands unmatched typed text to its first mode; the odd name keeps
+       combi's "!mode" shortcut from catching searches */
+    modi: "drun,window,_web:~/.config/rofi/web-search.sh";
+    combi-modes: "_web,drun";
+    combi-hide-mode-prefix: true;
     show-icons: false;
     terminal: "kitty";
-    font: "Perfect DOS VGA 437 35";
+    font: "Helvetica Neue Bold 35";
     drun-display-format: "{name}";
     show-modi: false;
 }

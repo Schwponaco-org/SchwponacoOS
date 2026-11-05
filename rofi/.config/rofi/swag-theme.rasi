@@ -35,10 +35,21 @@ window {
 }
 mainbox {
     border:       0;
-    orientation: vertical;
+    orientation: horizontal;
     expand: true;
     background-color: @background;
-    padding: 30% 0 0 35%;
+    children: [ pad-left, column, pad-right ];
+}
+pad-left, pad-right, pad-top, pad-bottom {
+    expand: true;
+    background-color: @background;
+}
+column {
+    orientation: vertical;
+    expand: false;
+    width: 25%;
+    background-color: @background;
+    children: [ pad-top, inputbar, listview, pad-bottom ];
 }
 message {
     border:       0;
@@ -51,7 +62,7 @@ textbox {
     background-color: @background;
 }
 listview {
-    fixed-height: 0;
+    fixed-height: true; 
     expand:       false;
     border:       0;
     lines:        5;
@@ -64,7 +75,6 @@ element {
     border:  0;
     padding: 0;
     background-color: @background;
-    padding: 0 0 0 0.9em;
 }
 element-text {
     background-color: inherit;
@@ -111,7 +121,7 @@ entry {
     text-color: @foreground;
     border:     0;
     background-color: @background;
-    cursor-width: 0.5em;
+    cursor-width: 5px;
 }
 prompt {
     spacing:    0;
@@ -121,13 +131,6 @@ prompt {
     enabled: false;
 }
 inputbar {
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
-textbox-prompt-colon {
-    expand:     false;
-    str:        ">";
-    margin:     0px 0.3em 0em 0em ;
-    text-color: @foreground;
-    background-color: @background;
+    children:   [ prompt,entry,case-indicator ];
 }
 

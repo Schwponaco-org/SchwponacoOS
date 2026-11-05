@@ -12,7 +12,7 @@ hl.monitor({
 
 local terminal    = "kitty"
 local fileManager = "kitty spf"
-local menu        = "rofi -show drun"
+local menu        = "rofi -show combi"  -- apps, plus "!query" to search in Zen (see rofi config)
 
 
 -- AUTOSTART --
@@ -21,19 +21,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("waybar")
   hl.exec_cmd("lxqt-policykit-agent")
   hl.exec_cmd("swayidle -w timeout 300 'swaylock -f -c 000000 --indicator-thickness 5' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' before-sleep 'swaylock -f -c 000000 --indicator-thickness 5'")
-  hl.exec_cmd("sleep 0.5 && kitty --class ncspot -e ncspot")
-  hl.exec_cmd("sleep 0.5 && kitty --class cava -e cava")
-  hl.exec_cmd("sleep 0.5 && kitty --class btop -e btop")
-end)
-
-hl.on("window.open", function(w) 
-  if w.class == "ncspot" then
-    hl.dispatch(hl.dsp.layout("swapwithmaster ignoremaster"))
-  elseif w.class == "btop" then
-    hl.dispatch(hl.dsp.layout("addmaster"))
-  elseif w.class == "cava" then
-    hl.exec_cmd("kitty --class calcure -e calcure")
-  end
+  hl.exec_cmd("python3 ~/.config/hypr/dashboard.py")
 end)
 
 
@@ -69,7 +57,6 @@ hl.config({
 
   decoration = {
     rounding = 0,
-    rounding_power = 0,
 
     active_opacity = 1.0,
     inactive_opacity = 1.0,
@@ -418,9 +405,10 @@ hl.window_rule({
 })
 
 hl.window_rule({
-  name        = "ncspot",
-  match       = { class = "(ncspot|cava|btop|calcure)" },
+  name        = "dashboard",
+  match       = { class = "hypr.dashboard" },
   workspace   = 1,
+  fullscreen  = true,
 })
 
 hl.layer_rule({
@@ -432,8 +420,8 @@ hl.layer_rule({
 hl.workspace_rule({
   workspace   = "1",
   layout      = "master",
-  gaps_in     = 20,
-  gaps_out    = 20,
+  gaps_in     = 0,
+  gaps_out    = 0,
 })
 
 hl.workspace_rule({
