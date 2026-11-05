@@ -7,7 +7,12 @@
     offset = (15, 15)
     scale = 0
     notification_limit = 0
-    progress_bar = false
+    # only drawn for notifications that send a value hint (the volume popup)
+    progress_bar = true
+    progress_bar_height = 8
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 300
+    progress_bar_max_width = 300
     indicate_hidden = yes
     transparency = 0
     separator_height = 2
@@ -44,6 +49,7 @@
 [urgency_low]
     background = "#232323"
     foreground = "#a8a8a8"
+    highlight = "#BBBBBB"
     timeout = 10
 
 [urgency_normal]
@@ -58,3 +64,8 @@
     frame_color = "#d64e4e"
     timeout = 0
     override_pause_level = 60
+
+# volume popup: the bar already shows the level, so drop the global format's "[ NN%]"
+[volume]
+    appname = volume
+    format = "<span foreground='#f3f4f5'><b>%s</b></span>"
