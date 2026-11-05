@@ -428,4 +428,6 @@ hl.workspace_rule({
 hl.workspace_rule({
   workspace   = "w[1]",
   no_border   = true,
+  gaps_in     = 0,
+  gaps_out    = 0,
 })
