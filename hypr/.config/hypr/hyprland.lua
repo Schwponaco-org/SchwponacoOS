@@ -312,20 +312,22 @@ hl.bind(mainMod .. " + SHIFT + L", function()
   end
 end)
 
--- "Removes" empty workspaces
+-- "Removes" empty workspaces: renumbers the workspaces that have windows to 1..n, keeping their order.
+-- get_workspaces() is unsorted and includes scratchpads (id nil), so collect, filter and sort first.
 hl.bind(mainMod .. " + Z", function()
-  local workspaces = hl.get_workspaces()
-  while not (workspaces[#workspaces].id == #workspaces) do
-    for i = 1,(workspaces[#workspaces].id) do
-      if not hl.get_workspace(i) then
-        if hl.get_workspace(i+1) then
-          windows = hl.get_workspace_windows(i+1)
-          for j = 1,#windows do
-            hl.dispatch(hl.dsp.window.move({ workspace = i, window = windows[j] }))
-          end
-        end
+  local ids = {}
+  for _, ws in ipairs(hl.get_workspaces()) do
+    if not ws.special and ws.id and ws.id > 0 and ws.windows > 0 then
+      table.insert(ids, ws.id)
+    end
+  end
+  table.sort(ids)
+
+  for target, id in ipairs(ids) do
+    if id ~= target then
+      for _, win in ipairs(hl.get_workspace_windows(id)) do
+        hl.dispatch(hl.dsp.window.move({ workspace = target, window = win, follow = false }))
       end
-      workspaces = hl.get_workspaces()
     end
   end
 end)
