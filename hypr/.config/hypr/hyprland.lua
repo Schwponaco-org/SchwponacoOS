@@ -92,6 +92,7 @@ hl.animation({ leaf = "windows",    enabled = true,   speed = 2,    bezier = "de
 hl.animation({ leaf = "border",     enabled = true,   speed = 2,    bezier = "default" })
 hl.animation({ leaf = "fade",       enabled = true,   speed = 2,    bezier = "default" })
 hl.animation({ leaf = "workspaces", enabled = true,   speed = 2,    bezier = "default" })
+hl.animation({ leaf = "specialWorkspace", enabled = false })  -- scratchpads appear instantly
 
 hl.config({
   dwindle = {
@@ -220,17 +221,9 @@ for i = 1, 10 do
   hl.bind(mainMod .. " + SHIFT + " .. key,   hl.dsp.window.move({ workspace = i }))
 end
 
--- Scratchpad animations are global, so each toggle sets its own first: magic slides, claude doesn't
-hl.bind(mainMod .. " + S", function()
-  hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2, bezier = "default" })
-  hl.dispatch(hl.dsp.workspace.toggle_special("magic"))
-end)
+hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
-
-hl.bind(mainMod .. " + C", function()
-  hl.animation({ leaf = "specialWorkspace", enabled = false })
-  hl.dispatch(hl.dsp.workspace.toggle_special("claude"))
-end)
+hl.bind(mainMod .. " + C",         hl.dsp.workspace.toggle_special("claude"))
 
 -- Cmd+Tab style: hold Super, tap Tab to step through workspaces, let go of Super to switch
 hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("qs ipc call overview next"))
