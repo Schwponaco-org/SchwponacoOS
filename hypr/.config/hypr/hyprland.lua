@@ -23,6 +23,8 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("swayidle -w timeout 300 'swaylock -f -c 000000 --indicator-thickness 5' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' before-sleep 'swaylock -f -c 000000 --indicator-thickness 5'")
   hl.exec_cmd("python3 ~/.config/hypr/dashboard.py")
   hl.exec_cmd("~/.config/hypr/battery-notify.sh")
+  hl.exec_cmd("claude-desktop")
+  hl.exec_cmd("qs")  -- Quickshell: the Super+Tab workspace overview (~/.config/quickshell)
 end)
 
 
@@ -218,8 +220,21 @@ for i = 1, 10 do
   hl.bind(mainMod .. " + SHIFT + " .. key,   hl.dsp.window.move({ workspace = i }))
 end
 
-hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
+-- Scratchpad animations are global, so each toggle sets its own first: magic slides, claude doesn't
+hl.bind(mainMod .. " + S", function()
+  hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2, bezier = "default" })
+  hl.dispatch(hl.dsp.workspace.toggle_special("magic"))
+end)
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+
+hl.bind(mainMod .. " + C", function()
+  hl.animation({ leaf = "specialWorkspace", enabled = false })
+  hl.dispatch(hl.dsp.workspace.toggle_special("claude"))
+end)
+
+-- Cmd+Tab style: hold Super, tap Tab to step through workspaces, let go of Super to switch
+hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("qs ipc call overview next"))
+hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.exec_cmd("qs ipc call overview prev"))
 
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
@@ -406,6 +421,12 @@ hl.window_rule({
 })
 
 hl.window_rule({
+  name        = "claude-scratchpad",
+  match       = { class = "com.anthropic.Claude" },
+  workspace   = "special:claude silent",  -- silent: opens hidden at login instead of popping over the dashboard
+})
+
+hl.window_rule({
   name        = "dashboard",
   match       = { class = "hypr.dashboard" },
   workspace   = 1,
@@ -415,6 +436,12 @@ hl.window_rule({
 hl.layer_rule({
   name        = "rofi-blur",
   match       = { namespace = "rofi" },
+  blur        = true,
+})
+
+hl.layer_rule({
+  name        = "overview-blur",
+  match       = { namespace = "overview" },
   blur        = true,
 })
 

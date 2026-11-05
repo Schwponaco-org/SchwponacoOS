@@ -25,7 +25,15 @@
     },
 
     "hyprland/workspaces":{
-        "format": ""
+        // normal workspaces stay icon-less blocks; scratchpads get an icon, keyed by name
+        "format": "{icon}",
+        "show-special": true,
+        "format-icons": {
+            // Scratchpad Icons: font in ~/.fonts built by build-scratchpad-icons.py, both glyphs at the Nerd icons' height
+            "claude": "<span font_family='Scratchpad Icons'>\ue000</span>",  // Clawd
+            "magic": "<span font_family='Scratchpad Icons'>\ue001</span>",   // rounded square
+            "default": ""
+        }
     },
 
     "clock": {
