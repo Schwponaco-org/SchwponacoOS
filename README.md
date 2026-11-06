@@ -2,7 +2,7 @@
 
 Hyprland on plain Arch, Swiss style: Helvetica, `#191919` bars, `#111111` background, `#BBBBBB` accents.
 
-![rofi](rofi.png)
+![The workspace 1 dashboard](dashboard.jpg)
 
 ## What's here
 
