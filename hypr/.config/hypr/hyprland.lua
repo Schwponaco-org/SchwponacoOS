@@ -224,6 +224,7 @@ end
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 hl.bind(mainMod .. " + C",         hl.dsp.workspace.toggle_special("claude"))
+
 -- Claude pulled onto a workspace goes back to its scratchpad
 hl.bind(mainMod .. " + SHIFT + C", function()
   for _, win in ipairs(hl.get_windows({ class = "com.anthropic.Claude" })) do
