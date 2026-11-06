@@ -62,7 +62,7 @@ dunst
 libnotify               # notify-send
 kitty
 hypridle                # idle: lock, screen off; stays awake while video plays
-swaylock
+hyprlock                # lock screen (hyprlock.conf)
 grim                    # screenshot
 slurp                   # screenshot
 wl-clipboard            # screenshot
