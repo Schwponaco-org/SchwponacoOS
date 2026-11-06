@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Zen with your logins and nothing else.
 
-Every launch builds a fresh Zen profile in RAM (your normal Zen's user.js and extensions), puts in only the
+Every launch starts a fresh Zen profile in RAM (your normal Zen's user.js and extensions), puts in only the
 cookies of the sites listed in ~/.config/zen-login/sites, and runs Zen. On exit it keeps those sites' own
 cookies, encrypts them and deletes the whole profile: no history, cache or other site data survives.
 A site marked "+storage" also keeps its local storage (not its cache or offline databases): Proton keeps
 half of its login there.
+The fresh profile is a copy of a base built once, without visiting any page, with the extensions already
+installed: otherwise every launch is a first install, and Tridactyl opens its tutorial each time. The base
+is rebuilt whenever your user.js or extensions change.
 
   zen-login [url ...]   start (asks for the passphrase when it needs to decrypt); while it's already
                         running, the urls open as tabs in that window instead
@@ -15,24 +18,31 @@ Data:
   ~/.config/zen-login/sites          one domain per line, e.g. "github.com" or "proton.me +storage";
                                      subdomains are included. Not in the repo.
   ~/.local/share/zen-login/login.tar.gpg  the kept cookies (and storage), encrypted to the gpg key "zen-login"
+  ~/.local/share/zen-login/base.tar        the base profile: settings and extensions only, nothing personal
   Zen's default profile (~/.config/zen/profiles.ini): user.js and extensions/*.xpi are copied from it
 Needs gpg with a graphical pinentry, and zen-browser.
 """
 import fcntl
+import hashlib
+import json
 import os
 import shutil
 import sqlite3
 import subprocess
 import sys
 import tarfile
-import tempfile
+import time
 
 KEY = "zen-login"
 SITES = os.path.expanduser("~/.config/zen-login/sites")
 STORE = os.path.expanduser("~/.local/share/zen-login/login.tar.gpg")
-OLD_STORE = os.path.expanduser("~/.local/share/zen-login/cookies.sqlite.gpg")  # before +storage existed
+BASE = os.path.expanduser("~/.local/share/zen-login/base.tar")
 ZEN = os.path.expanduser("~/.config/zen")
 RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
+PROFILE = os.path.join(RUNTIME, "zen-login")  # RAM; always the same path, so a copy of the base fits it
+# left out of the base: anything a page could have touched, plus locks and caches
+NOT_IN_BASE = ("cookies.sqlite", "sessionstore", "places.sqlite", "favicons.sqlite", "formhistory.sqlite",
+               "cache2", "startupCache", "lock", ".parentlock", "storage/default/http", "zen-sessions")
 
 # on top of the normal user.js: cookies must reach disk (RAM here) so they can be kept; nothing else
 OVERRIDES = """
@@ -102,6 +112,54 @@ def keep_only_listed(db, out, domains):
     return len(rows) - len(drop)
 
 
+def fill(profile, main):
+    """user.js (with the overrides) and the extensions, from your normal profile. Returns their hash."""
+    h = hashlib.sha256()
+    with open(os.path.join(main, "user.js"), "rb") as f:
+        userjs = f.read() + OVERRIDES.encode()
+    h.update(userjs)
+    with open(os.path.join(profile, "user.js"), "wb") as f:
+        f.write(userjs)
+    ext = os.path.join(main, "extensions")
+    os.makedirs(os.path.join(profile, "extensions"), exist_ok=True)
+    for x in sorted(os.listdir(ext)) if os.path.isdir(ext) else []:
+        if x.endswith(".xpi"):
+            shutil.copy(os.path.join(ext, x), os.path.join(profile, "extensions", x))
+            with open(os.path.join(ext, x), "rb") as f:
+                h.update(x.encode() + f.read())
+    return h.hexdigest()
+
+
+def build_base(main):
+    """Start Zen once, headless and on about:blank, so the extensions install; keep the result."""
+    subprocess.run(["notify-send", "-a", "zen-login", "zen-login", "Setting up the base profile, a few seconds…"])
+    shutil.rmtree(PROFILE, ignore_errors=True)
+    os.makedirs(PROFILE)
+    digest = fill(PROFILE, main)
+    ids = {x[:-4] for x in os.listdir(os.path.join(PROFILE, "extensions"))}
+    zen = subprocess.Popen(["zen-browser", "--headless", "--new-instance", "--profile", PROFILE, "about:blank"],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(60):  # until every extension is registered and active
+        time.sleep(1)
+        try:
+            with open(os.path.join(PROFILE, "extensions.json")) as f:
+                active = {a["id"] for a in json.load(f)["addons"] if a.get("active")}
+        except (OSError, ValueError, KeyError):
+            continue
+        if ids <= active:
+            break
+    time.sleep(5)  # let first-run work (uBlock's filter lists) finish
+    zen.terminate()  # Zen shuts down cleanly on SIGTERM
+    zen.wait(30)
+    os.makedirs(os.path.dirname(BASE), exist_ok=True)
+    with tarfile.open(BASE + ".new", "w") as tar:
+        tar.add(PROFILE, ".", filter=lambda t: None if any(
+            t.name[2:].startswith(n) for n in NOT_IN_BASE) else t)
+    os.replace(BASE + ".new", BASE)
+    with open(BASE + ".id", "w") as f:
+        f.write(digest)
+
+
 def setup():
     if subprocess.run(["gpg", "--list-secret-keys", KEY], capture_output=True).returncode != 0:
         print("Creating the gpg key; pick the passphrase you'll type when zen-login starts.")
@@ -124,28 +182,29 @@ def run(urls):
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         # already running: Zen hands urls given with the same --profile to that window
-        lock.seek(0)
-        running = lock.read().strip()
-        if urls and os.path.isdir(running):
-            sys.exit(subprocess.run(["zen-browser", "--profile", running, *urls]).returncode)
+        if urls:
+            sys.exit(subprocess.run(["zen-browser", "--profile", PROFILE, *urls]).returncode)
         sys.exit("zen-login is already running.")
 
     main = main_profile()
-    profile = tempfile.mkdtemp(prefix="zen-login-", dir=RUNTIME)  # RAM; only this user can read it
-    lock.truncate(0)
-    lock.write(profile)
-    lock.flush()
+    profile = PROFILE
     try:
-        with open(os.path.join(main, "user.js")) as f:
-            userjs = f.read()
-        with open(os.path.join(profile, "user.js"), "w") as f:
-            f.write(userjs + OVERRIDES)
-        ext = os.path.join(main, "extensions")
-        if os.path.isdir(ext):
-            os.makedirs(os.path.join(profile, "extensions"))
-            for x in os.listdir(ext):
-                if x.endswith(".xpi"):
-                    shutil.copy(os.path.join(ext, x), os.path.join(profile, "extensions", x))
+        os.makedirs(profile, exist_ok=True)
+        check = os.path.join(profile, ".check")
+        os.makedirs(check, exist_ok=True)
+        current = fill(check, main)  # hash of today's user.js and extensions
+        shutil.rmtree(check)
+        try:
+            with open(BASE + ".id") as f:
+                fresh = f.read() == current
+        except OSError:
+            fresh = False
+        if not fresh:
+            build_base(main)
+        shutil.rmtree(profile, ignore_errors=True)  # a leftover from a crash, or the build above
+        os.makedirs(profile)
+        with tarfile.open(BASE) as tar:
+            tar.extractall(profile, filter="data")
 
         if os.path.exists(STORE):
             bundle = os.path.join(profile, "login.tar")
@@ -153,9 +212,6 @@ def run(urls):
             with tarfile.open(bundle) as tar:
                 tar.extractall(profile, filter="data")  # "data": nothing can land outside the profile
             os.remove(bundle)
-        elif os.path.exists(OLD_STORE):
-            with open(os.path.join(profile, "cookies.sqlite"), "wb") as out:
-                subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", OLD_STORE], stdout=out, check=True)
 
         # --new-instance: separate from your normal Zen, but unlike --no-remote it still takes urls
         # from a second zen-login (above)
@@ -175,8 +231,6 @@ def run(urls):
             subprocess.run(["gpg", "--quiet", "--batch", "--yes", "--encrypt", "--recipient", KEY,
                             "--output", STORE + ".new", bundle], check=True)
             os.replace(STORE + ".new", STORE)  # the old file stays until the new one is complete
-            if os.path.exists(OLD_STORE):
-                os.remove(OLD_STORE)
             origins = sorted({p.split(os.sep)[2] for p in stored})
             print(f"Kept {kept} cookies for {', '.join(domains)}" + (f", storage of {', '.join(origins)}" if origins else "") + ".")
     finally:

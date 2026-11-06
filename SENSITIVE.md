@@ -11,7 +11,7 @@ repo.
 | Background photo `mies.jpg` | `~/Pictures/` | Someone else's photo; any image works | dashboard, GRUB theme |
 | SSH hosts | `~/.ssh/config` | Private addresses and user names | `cmdlib` |
 | WireGuard configs | `/etc/wireguard/*.conf` | Contain private keys | `cmdlib`, `waybar-vpn` |
-| `zen-login` sites, cookies and key | `~/.config/zen-login/sites`, `~/.local/share/zen-login/`, your gpg keyring | Which services you use, and your login cookies | `zen-login` |
+| `zen-login` sites, cookies and key | `~/.config/zen-login/sites`, `~/.local/share/zen-login/login.tar.gpg`, your gpg keyring | Which services you use, and your login cookies | `zen-login` |
 | Claude Code login | `~/.claude/.credentials.json` | Account credentials; created by running `claude` | dashboard usage rings |
 
 The dashboard's usage rings read Anthropic's undocumented usage endpoint, so they may stop working
