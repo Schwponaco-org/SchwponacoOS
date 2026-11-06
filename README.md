@@ -101,6 +101,7 @@ Then refresh the font cache with `fc-cache -f`.
 ```bash
 sudo systemctl enable --now NetworkManager bluetooth power-profiles-daemon firewalld
 chsh -s /usr/bin/fish
+xdg-mime default superfile.desktop inode/directory   # folders open in superfile
 sudo usermod -aG input $USER   # the Super+Tab overview reads the Super key; log out and in after
 ~/SchwponacoOS/grub/install-theme.sh
 ```

@@ -1,0 +1,8 @@
+[Desktop Entry]
+# Opens folders (e.g. KDE Connect's "Browse this device") in superfile; set as the default with:
+#   xdg-mime default superfile.desktop inode/directory
+Type=Application
+Name=superfile
+Exec=kitty spf %f
+MimeType=inode/directory;
+NoDisplay=true
