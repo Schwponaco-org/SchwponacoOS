@@ -1,6 +1,6 @@
 # SchwponacoOS
 
-Hyprland on plain Arch, Swiss style: Helvetica, `#191919` bars, `#111111` background, `#BBBBBB` accents.
+Hyprland on plain Arch: Helvetica, `#191919` bars, `#111111` background, `#BBBBBB` accents.
 
 ![The workspace 1 dashboard](dashboard.jpg)
 
