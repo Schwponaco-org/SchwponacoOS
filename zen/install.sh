@@ -2,7 +2,8 @@
 # Sets up Zen from this folder:
 #   - links user.js into Zen's default profile (its folder name is random, so it's looked up)
 #   - installs policies.json system-wide (asks for sudo): installs uBlock Origin and Tridactyl (beta)
-#     on first start and turns off telemetry and studies. /etc, not Zen's own folder, so updates keep it.
+#     on first start, makes DuckDuckGo the search engine, and turns off telemetry and studies.
+#     /etc, not Zen's own folder, so updates keep it.
 # Start Zen once before running this, so the profile exists.
 set -e
 

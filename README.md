@@ -161,4 +161,5 @@ curl -fsSL https://claude.ai/install.sh | bash
 `zen/user.js` holds the browser settings: always private browsing, no history, everything cleared on exit,
 tracker and fingerprinting protection, HTTPS-only, encrypted DNS. It's re-applied on every start, so change
 settings there rather than in Zen's settings page. `zen/policies.json` installs uBlock Origin and Tridactyl
-(beta) and turns off telemetry and studies; check `about:policies` after setup.
+(beta), makes DuckDuckGo the search engine and turns off telemetry and studies; check `about:policies`
+after setup.
