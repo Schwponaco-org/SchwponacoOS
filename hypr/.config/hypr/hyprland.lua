@@ -116,8 +116,8 @@ hl.config({
 
 hl.config({
   input = {
-    kb_layout   = "dk",
-    kb_variant  = "",
+    kb_layout   = "dk,hr",          -- Danish, and Glagolitic (Super+- switches)
+    kb_variant  = ",glagyz",        -- hr(glagyz): Glagolitic with Z and Y on the keys labelled Z and Y
     kb_model    = "",
     kb_options  = "",
     kb_rules    = "",
@@ -345,6 +345,10 @@ hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
 hl.bind("SHIFT + CTRL + S", hl.dsp.exec_cmd("~/.local/bin/screenshot"))
+
+-- Danish <-> Glagolitic keyboard, with a popup naming the active one
+hl.bind(mainMod .. " + minus", hl.dsp.exec_cmd(
+  "hyprctl switchxkblayout all next >/dev/null; notify-send -a keyboard -u low -t 1200 -h string:x-dunst-stack-tag:keyboard \"$(hyprctl devices | awk -F': ' '/active keymap/ { print ($2 ~ /Glagolitic/ ? \"Glagolitic\" : $2); exit }')\""))
 
 -- Warmer / cooler screen in 100K steps (hyprsunset; starts it if needed)
 hl.bind(mainMod .. " + down", hl.dsp.exec_cmd("~/.config/hypr/sunset.sh down"), { repeating = true })
