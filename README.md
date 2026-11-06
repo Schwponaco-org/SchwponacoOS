@@ -137,7 +137,6 @@ curl -fsSL https://claude.ai/install.sh | bash
 | Super+F | Fullscreen |
 | Super+U | Lock |
 | Super+Shift+Q | Close window |
-| Super+Shift+M | Log out |
 | Shift+Ctrl+S | Screenshot a region |
 | Super+Down / Super+Up | Warmer / cooler screen, 100K per press (hyprsunset) |
 | Super+- | Switch keyboard: Danish / Schwponese (Glagolitic letters) |
