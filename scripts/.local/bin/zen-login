@@ -4,13 +4,16 @@
 Every launch builds a fresh Zen profile in RAM (your normal Zen's user.js and extensions), puts in only the
 cookies of the sites listed in ~/.config/zen-login/sites, and runs Zen. On exit it keeps those sites' own
 cookies, encrypts them and deletes the whole profile: no history, cache or other site data survives.
+A site marked "+storage" also keeps its local storage (not its cache or offline databases): Proton keeps
+half of its login there.
 
   zen-login [url ...]   start (asks for the passphrase when it needs to decrypt)
   zen-login --setup     create the gpg key (you pick the passphrase) and a starter sites file
 
 Data:
-  ~/.config/zen-login/sites                  one domain per line; subdomains are included. Not in the repo.
-  ~/.local/share/zen-login/cookies.sqlite.gpg  the cookies, encrypted to the gpg key "zen-login"
+  ~/.config/zen-login/sites          one domain per line, e.g. "github.com" or "proton.me +storage";
+                                     subdomains are included. Not in the repo.
+  ~/.local/share/zen-login/login.tar.gpg  the kept cookies (and storage), encrypted to the gpg key "zen-login"
   Zen's default profile (~/.config/zen/profiles.ini): user.js and extensions/*.xpi are copied from it
 Needs gpg with a graphical pinentry, and zen-browser.
 """
@@ -20,11 +23,13 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+import tarfile
 import tempfile
 
 KEY = "zen-login"
 SITES = os.path.expanduser("~/.config/zen-login/sites")
-STORE = os.path.expanduser("~/.local/share/zen-login/cookies.sqlite.gpg")
+STORE = os.path.expanduser("~/.local/share/zen-login/login.tar.gpg")
+OLD_STORE = os.path.expanduser("~/.local/share/zen-login/cookies.sqlite.gpg")  # before +storage existed
 ZEN = os.path.expanduser("~/.config/zen")
 RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
 
@@ -44,8 +49,14 @@ user_pref("browser.startup.homepage_override.mstone", "ignore");
 
 
 def sites():
+    """{domain: keeps storage} from the sites file."""
+    out = {}
     with open(SITES) as f:
-        return [l.split("#")[0].strip().lstrip(".").lower() for l in f if l.split("#")[0].strip()]
+        for line in f:
+            words = line.split("#")[0].lower().split()
+            if words:
+                out[words[0].lstrip(".")] = "+storage" in words[1:]
+    return out
 
 
 def wanted(host, domains):
@@ -62,6 +73,19 @@ def main_profile():
         elif inst and line.startswith("Default="):
             return os.path.join(ZEN, line.split("=", 1)[1])
     sys.exit("No Zen profile found; start Zen once first.")
+
+
+def storage_to_keep(profile, domains):
+    """Local storage folders of the +storage sites' own origins: storage/default/https+++<host>[+port].
+    Names with "^" are partitioned or container copies and are left out, as are cache and offline data."""
+    base = os.path.join(profile, "storage", "default")
+    keep = [d for d, storage in domains.items() if storage]
+    for name in sorted(os.listdir(base)) if keep and os.path.isdir(base) else []:
+        host = name.split("+++", 1)[-1].split("+")[0]
+        if name.startswith("https+++") and "^" not in name and wanted(host, keep):
+            for part in (".metadata-v2", "ls"):
+                if os.path.exists(os.path.join(base, name, part)):
+                    yield os.path.join("storage", "default", name, part)
 
 
 def keep_only_listed(db, out, domains):
@@ -115,8 +139,14 @@ def run(urls):
                     shutil.copy(os.path.join(ext, x), os.path.join(profile, "extensions", x))
 
         if os.path.exists(STORE):
+            bundle = os.path.join(profile, "login.tar")
+            subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", "--output", bundle, STORE], check=True)
+            with tarfile.open(bundle) as tar:
+                tar.extractall(profile, filter="data")  # "data": nothing can land outside the profile
+            os.remove(bundle)
+        elif os.path.exists(OLD_STORE):
             with open(os.path.join(profile, "cookies.sqlite"), "wb") as out:
-                subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", STORE], stdout=out, check=True)
+                subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", OLD_STORE], stdout=out, check=True)
 
         subprocess.run(["zen-browser", "--no-remote", "--profile", profile, *urls])
 
@@ -124,11 +154,20 @@ def run(urls):
         if os.path.exists(db):
             clean = os.path.join(profile, "keep.sqlite")
             kept = keep_only_listed(db, clean, domains)
+            bundle = os.path.join(profile, "login.tar")
+            with tarfile.open(bundle, "w") as tar:
+                tar.add(clean, "cookies.sqlite")
+                stored = list(storage_to_keep(profile, domains))
+                for path in stored:
+                    tar.add(os.path.join(profile, path), path)
             os.makedirs(os.path.dirname(STORE), exist_ok=True)
             subprocess.run(["gpg", "--quiet", "--batch", "--yes", "--encrypt", "--recipient", KEY,
-                            "--output", STORE + ".new", clean], check=True)
+                            "--output", STORE + ".new", bundle], check=True)
             os.replace(STORE + ".new", STORE)  # the old file stays until the new one is complete
-            print(f"Kept {kept} cookies for {', '.join(domains)}.")
+            if os.path.exists(OLD_STORE):
+                os.remove(OLD_STORE)
+            origins = sorted({p.split(os.sep)[2] for p in stored})
+            print(f"Kept {kept} cookies for {', '.join(domains)}" + (f", storage of {', '.join(origins)}" if origins else "") + ".")
     finally:
         shutil.rmtree(profile, ignore_errors=True)
 

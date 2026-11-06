@@ -151,7 +151,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 - `open-folder`: opens folders in superfile; it's the default app for folders. It also turns KDE Connect's
   "Browse this device" link into the phone's mounted storage.
 - `zen-login`: Zen with your logins and nothing else. Each launch builds a fresh profile in RAM, adds only
-  the cookies of the sites in `~/.config/zen-login/sites`, and on exit encrypts those sites' cookies again
+  the cookies of the sites in `~/.config/zen-login/sites` (plus local storage for sites marked `+storage`,
+  which Proton needs), and on exit encrypts those sites' cookies again
   and deletes everything else. So you skip 2FA without keeping history or other site data. Run
   `zen-login --setup` once to create its gpg key; you type its passphrase when zen-login starts.
 
