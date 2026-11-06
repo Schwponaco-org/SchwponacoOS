@@ -43,7 +43,7 @@ boot into it. Before step 3, enable `[multilib]` in `/etc/pacman.conf`; Steam ne
 
 ```bash
 sudo pacman -S --needed git stow
-git clone https://github.com/cowmuncher/SchwponacoOS ~/SchwponacoOS
+git clone https://github.com/Schwponaco-org/SchwponacoOS ~/SchwponacoOS
 ```
 
 ### 3. Install packages
