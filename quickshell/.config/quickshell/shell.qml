@@ -2,7 +2,7 @@
 // Hold Super and tap Tab to step through workspaces (Shift+Tab steps back, both wrap around);
 // releasing Super switches to the selected one. While open, h/l/arrows also move,
 // Enter/o/space go, Esc/q close, and clicking a card goes there.
-// Driven from Hyprland with: qs ipc call overview next|prev
+// Driven from Hyprland with: qs ipc call overview next|prev|release
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -33,6 +33,7 @@ ShellRoot {
     }
 
     function go(ws) {
+        if (!open) return  // the release can arrive twice: from this window and from Hyprland
         open = false
         Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${ws.name} })`])
     }
@@ -41,6 +42,8 @@ ShellRoot {
         target: "overview"
         function next(): void { root.step(1) }
         function prev(): void { root.step(-1) }
+        // Super released, reported by Hyprland (hyprland.lua): switch to the selected workspace
+        function release(): void { root.go(root.workspaces[root.selected]) }
     }
 
     // Quickshell can't see the focused workspace under the Lua config, so follow Hyprland's events
