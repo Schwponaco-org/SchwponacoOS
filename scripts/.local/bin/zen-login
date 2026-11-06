@@ -7,7 +7,8 @@ cookies, encrypts them and deletes the whole profile: no history, cache or other
 A site marked "+storage" also keeps its local storage (not its cache or offline databases): Proton keeps
 half of its login there.
 
-  zen-login [url ...]   start (asks for the passphrase when it needs to decrypt)
+  zen-login [url ...]   start (asks for the passphrase when it needs to decrypt); while it's already
+                        running, the urls open as tabs in that window instead
   zen-login --setup     create the gpg key (you pick the passphrase) and a starter sites file
 
 Data:
@@ -118,14 +119,22 @@ def setup():
 def run(urls):
     os.umask(0o077)  # everything zen-login writes is readable by you only
     domains = sites()
-    lock = open(os.path.join(RUNTIME, "zen-login.lock"), "w")
+    lock = open(os.path.join(RUNTIME, "zen-login.lock"), "a+")
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
+        # already running: Zen hands urls given with the same --profile to that window
+        lock.seek(0)
+        running = lock.read().strip()
+        if urls and os.path.isdir(running):
+            sys.exit(subprocess.run(["zen-browser", "--profile", running, *urls]).returncode)
         sys.exit("zen-login is already running.")
 
     main = main_profile()
     profile = tempfile.mkdtemp(prefix="zen-login-", dir=RUNTIME)  # RAM; only this user can read it
+    lock.truncate(0)
+    lock.write(profile)
+    lock.flush()
     try:
         with open(os.path.join(main, "user.js")) as f:
             userjs = f.read()
@@ -148,7 +157,9 @@ def run(urls):
             with open(os.path.join(profile, "cookies.sqlite"), "wb") as out:
                 subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", OLD_STORE], stdout=out, check=True)
 
-        subprocess.run(["zen-browser", "--no-remote", "--profile", profile, *urls])
+        # --new-instance: separate from your normal Zen, but unlike --no-remote it still takes urls
+        # from a second zen-login (above)
+        subprocess.run(["zen-browser", "--new-instance", "--profile", profile, *urls])
 
         db = os.path.join(profile, "cookies.sqlite")
         if os.path.exists(db):

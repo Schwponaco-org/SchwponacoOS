@@ -14,7 +14,7 @@ folder. For example, `kitty/.config/kitty/kitty.conf` becomes `~/.config/kitty/k
 | `hypr` | Hyprland (Lua config), the workspace 1 dashboard, volume popup, low-battery warnings |
 | `waybar` | Top bar, with scratchpad icons and the VPN indicator |
 | `quickshell` | Super+Tab workspace overview |
-| `rofi` | App launcher; `!query` searches the web, `#name` opens one of your GitHub repos |
+| `rofi` | App launcher; `!query` searches the web, `#name` opens one of your GitHub repos in `zen-login` |
 | `dunst` | Notifications |
 | `kitty` | Terminal |
 | `fish` | Shell |

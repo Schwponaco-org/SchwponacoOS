@@ -2,7 +2,8 @@
 # rofi script mode for typed prefixes. It lists no entries, so inside combi it only receives text
 # that matched no app (ROFI_RETV=2):
 #   !query  search the web in Zen
-#   #name   open a GitHub repo in Zen, matched on the repo name only (not its owner), case-insensitive.
+#   #name   open a GitHub repo in zen-login (Zen with your saved logins), matched on the repo name only
+#           (not its owner), case-insensitive.
 #           One match opens directly, several (or just "#")
 #           open a second rofi list to pick from.
 # Repo data: `gh repo list` for your account and every organisation you belong to (`gh api user/orgs`);
@@ -30,10 +31,10 @@ case $1 in
     matches=$(awk -F'\t' -v q="$query" 'tolower($1) == q' "$cache")
     [ -n "$matches" ] || matches=$(awk -F'\t' -v q="$query" 'index(tolower($1), q)' "$cache")
     if [ "$(printf '%s\n' "$matches" | grep -c .)" = 1 ]; then
-      open "$(printf '%s' "$matches" | cut -f2)"
+      setsid -f zen-login "$(printf '%s' "$matches" | cut -f2)" >/dev/null 2>&1
     else
       # this rofi is still closing, so the picker starts a moment later
       list=${matches:-$(cat "$cache")}
-      setsid -f sh -c 'sleep 0.15; url=$(printf "%s\n" "$1" | rofi -dmenu -i -p "#" -display-columns 1 -display-column-separator "\t" | cut -f2); [ -n "$url" ] && setsid -f zen-browser "$url"' _ "$list" >/dev/null 2>&1
+      setsid -f sh -c 'sleep 0.15; url=$(printf "%s\n" "$1" | rofi -dmenu -i -p "#" -display-columns 1 -display-column-separator "\t" | cut -f2); [ -n "$url" ] && setsid -f zen-login "$url"' _ "$list" >/dev/null 2>&1
     fi ;;
 esac
