@@ -4,7 +4,7 @@
 #
 # Data sources:
 #   - VPN: ~/.local/bin/waybar-vpn (scripts package); Wi-Fi: nmcli (networkmanager)
-#   - battery: /sys/class/power_supply/BAT0
+#   - battery: /sys/class/power_supply/BAT0; power profile: powerprofilesctl (power-profiles-daemon)
 #   - Claude limits: https://api.anthropic.com/api/oauth/usage, the undocumented endpoint behind Claude's
 #     usage page, signed in with terminal Claude Code's login (~/.claude/.credentials.json; run `claude` now
 #     and then to keep it fresh). Cached in ~/.cache/dashboard-usage.json.
@@ -87,6 +87,11 @@ def network():
         if kind == "802-3-ethernet":
             return "Ethernet"
     return "Offline"
+
+
+def power_profile():
+    out = subprocess.run(["powerprofilesctl", "get"], capture_output=True, text=True).stdout.strip()
+    return {"power-saver": "Saver", "balanced": "Balanced", "performance": "Performance"}.get(out, out or "Unknown")
 
 
 def battery():
@@ -214,7 +219,7 @@ class Dashboard(Gtk.ApplicationWindow):
 
         self.status_bar = status = Gtk.Box(css_classes=["status"], spacing=48)
         self.status = {}
-        for key in ("VPN", "Wi-Fi", "Battery"):
+        for key in ("VPN", "Wi-Fi", "Battery", "Power"):
             item = Gtk.Box(spacing=8)
             item.append(Gtk.Label(label=key, css_classes=["key"]))
             self.status[key] = Gtk.Label()
@@ -370,6 +375,7 @@ class Dashboard(Gtk.ApplicationWindow):
         self.status["VPN"].set_label(vpn())
         self.status["Wi-Fi"].set_label(network())
         self.status["Battery"].set_label(battery())
+        self.status["Power"].set_label(power_profile())
         return True
 
     def poll_usage(self):
