@@ -28,6 +28,8 @@ require("lazy").setup({
     lazy = false,
     priority = 1000,
     config = function()
+      -- Transparent background (Kitty's opacity shows through)
+      vim.g.moonflyTransparent = true
       vim.cmd("colorscheme moonfly")
     end,
   },
@@ -87,10 +89,37 @@ require("lazy").setup({
     opts = { preset = "helix" },
   },
   {
+    -- Syntax highlighting via treesitter (LaTeX is left to vimtex)
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
+    build = ":TSUpdate",
+    config = function()
+      -- Parsers are compiled with the tree-sitter CLI (pacman: tree-sitter-cli)
+      if vim.fn.executable("tree-sitter") == 1 then
+        require("nvim-treesitter").install({
+          "c", "cpp", "ocaml", "lua", "bash", "fish", "python",
+          "markdown", "markdown_inline", "json", "toml", "css",
+        })
+      end
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          if vim.bo[args.buf].filetype ~= "tex" then
+            pcall(vim.treesitter.start, args.buf)
+          end
+        end,
+      })
+    end,
+  },
+  {
     "neovim/nvim-lspconfig",
     config = function()
-      vim.lsp.config('clangd', {})
+      vim.lsp.config('clangd', {
+        init_options = { fallbackFlags = { '-std=c++20' } },
+      })
       vim.lsp.enable('clangd')
+      vim.lsp.config('ocamllsp', {})
+      vim.lsp.enable('ocamllsp')
     end,
   },
   {
@@ -106,11 +135,23 @@ require("lazy").setup({
     },
   },
   {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = true,
+  },
+  {
+    "kylechui/nvim-surround",
+    version = "^4.0.0",
+    event = "VeryLazy",
+    config = true,
+  },
+  {
     "lervag/vimtex",
-    lazy = false,
+    lazy = false, -- vimtex must not be lazy-loaded, or inverse search breaks
     init = function()
       vim.g.vimtex_view_method = "zathura"
-    end
+      vim.g.vimtex_quickfix_mode = 0
+    end,
   },
   {
     "L3MON4D3/LuaSnip",
@@ -118,7 +159,20 @@ require("lazy").setup({
     build = "make install_jsregexp",
     dependencies = { "rafamadriz/friendly-snippets" },
     config = function()
+      local ls = require("luasnip")
+      -- Expand LaTeX Suite style snippets as you type (mj, dm, //, ...)
+      ls.setup({ enable_autosnippets = true })
       require("luasnip.loaders.from_vscode").lazy_load()
+
+      -- Inline math trigger: mk -> mj
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "LuasnipSnippetsAdded",
+        callback = function()
+          for _, snip in ipairs(ls.get_snippets("tex", { type = "autosnippets" })) do
+            if snip.trigger == "mk" then snip.trigger = "mj" end
+          end
+        end,
+      })
     end,
   },
   {
@@ -129,9 +183,4 @@ require("lazy").setup({
       require("luasnip-latex-snippets")
     end,
   },
-  {
-    "kylechui/nvim-surround",
-    version = "^4.0.0",
-    event = "VeryLazy",
-  }
 })

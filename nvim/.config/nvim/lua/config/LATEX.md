@@ -68,12 +68,14 @@ Motions:
 
 ## Snippets
 
-Type the trigger, a popup appears (blink.cmp), press `Tab` to accept **and**
-expand it in one keystroke. `Tab`/`Shift-Tab` then hop between the snippet's
+Autosnippets (like Obsidian's LaTeX Suite) are enabled: most triggers in this
+pack (`mj`, `dm`, `ali`, `//`, ...) expand by themselves the moment you finish
+typing them. Regular snippets still go through the popup (blink.cmp): type the
+trigger and press `Tab` to accept **and** expand it in one keystroke. `Tab`/`Shift-Tab` then hop between the snippet's
 placeholder fields (`$1`, `$2`, ...) until you land on `$0` (final cursor spot).
 
 **Important caveat:** almost every snippet in this pack (`beg`, `-i`, `-e`,
-`sec`, `mk`, `dm`, formatting commands, references, ...) has a `show_condition`
+`sec`, `mj`, `dm`, formatting commands, references, ...) has a `show_condition`
 that checks vimtex's syntax state:
 
 - Most require being **inside `\begin{document}...\end{document}`** — they
@@ -86,7 +88,7 @@ that checks vimtex's syntax state:
 
   \end{document}
   ```
-- Math-entry snippets (`mk`, `dm`, `ali`, ...) additionally require being
+- Math-entry snippets (`mj`, `dm`, `ali`, ...) additionally require being
   *outside* math mode (they're for entering math, not stacking inside it).
 
 If a trigger you expect to work produces nothing, this condition is the first
@@ -97,7 +99,7 @@ in the current context.
 
 | Trigger | Expands to |
 |---|---|
-| `mk` | Inline math: `$|$` |
+| `mj` | Inline math: `$|$` |
 | `dm` | Display math: `\[ | \]` |
 | `ali` | `align` / `align*` / `aligned` |
 | `gat` | `gather` / `gather*` / `gathered` |

@@ -89,6 +89,7 @@ tailscale               # cmdlib, waybar-vpn
 # --- Terminal -------------------------------------------------------------------------------------
 fish
 neovim
+tree-sitter-cli         # nvim-treesitter compiles its parsers with it
 btop
 superfile               # file manager (Super+E)
 cava
