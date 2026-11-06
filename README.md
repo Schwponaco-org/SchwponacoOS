@@ -139,6 +139,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 | Super+Shift+Q | Close window |
 | Super+Shift+M | Log out |
 | Shift+Ctrl+S | Screenshot a region |
+| Super+Down / Super+Up | Warmer / cooler screen, 100K per press (hyprsunset) |
 | Space (on the dashboard) | System panel with btop |
 
 ## Scripts

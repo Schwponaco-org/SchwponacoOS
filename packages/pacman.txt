@@ -67,7 +67,7 @@ grim                    # screenshot
 slurp                   # screenshot
 wl-clipboard            # screenshot
 brightnessctl
-hyprsunset              # warm screen at night (run by hand, e.g. hyprsunset -t 1900)
+hyprsunset              # warm screen at night: Super+Down / Super+Up
 playerctl
 pavucontrol
 blueman

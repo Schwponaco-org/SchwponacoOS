@@ -346,6 +346,10 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 
 hl.bind("SHIFT + CTRL + S", hl.dsp.exec_cmd("~/.local/bin/screenshot"))
 
+-- Warmer / cooler screen in 100K steps (hyprsunset; starts it if needed)
+hl.bind(mainMod .. " + down", hl.dsp.exec_cmd("~/.config/hypr/sunset.sh down"), { repeating = true })
+hl.bind(mainMod .. " + up",   hl.dsp.exec_cmd("~/.config/hypr/sunset.sh up"),   { repeating = true })
+
 
 local zenMode = false
 
