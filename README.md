@@ -29,6 +29,7 @@ Not stow packages:
 | --- | --- |
 | `packages/` | Package lists for pacman, the AUR, Flatpak and cargo |
 | `grub/` | Helvetica GRUB theme and its install script |
+| `zen/` | Zen browser: settings (`user.js`), extensions (`policies.json`) and their install script |
 
 [SENSITIVE.md](SENSITIVE.md) lists what's deliberately kept out of the repo (licensed fonts, keys, photos).
 
@@ -104,6 +105,7 @@ chsh -s /usr/bin/fish
 xdg-mime default superfile.desktop inode/directory   # folders open in superfile
 sudo usermod -aG input $USER   # the Super+Tab overview reads the Super key; log out and in after
 ~/SchwponacoOS/grub/install-theme.sh
+~/SchwponacoOS/zen/install.sh   # start Zen once first, so it has a profile
 ```
 
 `cmdlib` starts and stops `tailscaled` itself, so it doesn't need to be enabled.
@@ -148,3 +150,10 @@ curl -fsSL https://claude.ai/install.sh | bash
   clipboard.
 - `open-folder`: opens folders in superfile; it's the default app for folders. It also turns KDE Connect's
   "Browse this device" link into the phone's mounted storage.
+
+## Zen
+
+`zen/user.js` holds the browser settings: always private browsing, no history, everything cleared on exit,
+tracker and fingerprinting protection, HTTPS-only, encrypted DNS. It's re-applied on every start, so change
+settings there rather than in Zen's settings page. `zen/policies.json` installs uBlock Origin and Tridactyl
+(beta) and turns off telemetry and studies; check `about:policies` after setup.
