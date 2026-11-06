@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-# Builds ~/.fonts/ScratchpadIcons.ttf for the waybar scratchpad buttons:
+# Builds ~/.local/share/fonts/ScratchpadIcons.ttf for the waybar scratchpad buttons and the dashboard.
+# Generated, not committed: it contains Anthropic's Clawd artwork. Run once on a new system:
 #   U+E000  Claude Code's Clawd mascot (square pixels)
 #   U+E001  md-square_rounded_outline from JetBrainsMono Nerd Font
 # Both are scaled to the exact height and vertical position of the Nerd Font Wi-Fi icon,
 # keeping their own proportions, so they sit at the same size as the bar's other icons.
+# Data: the Nerd Font comes from the ttf-jetbrains-mono-nerd package; Clawd is the pixel grid below.
+# Needs python-fonttools. Run it again after a Nerd Font update, then restart waybar.
 import os
 
 from fontTools import subset
@@ -76,6 +79,8 @@ for rec in f['name'].names:
     if rec.nameID in (1, 16): rec.string = 'Scratchpad Icons'
     elif rec.nameID == 4: rec.string = 'Scratchpad Icons Regular'
     elif rec.nameID == 6: rec.string = 'ScratchpadIcons-Regular'
-f.save(os.path.expanduser('~/.fonts/ScratchpadIcons.ttf'))
+out = os.path.expanduser('~/.local/share/fonts/ScratchpadIcons.ttf')
+os.makedirs(os.path.dirname(out), exist_ok=True)
+f.save(out)
 for n in ('clawd', 'square'):
     g = f['glyf'][n]; print(n, 'height', g.yMax - g.yMin, 'width', g.xMax - g.xMin, 'y', g.yMin, g.yMax)

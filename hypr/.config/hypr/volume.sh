@@ -1,5 +1,6 @@
 #!/bin/sh
 # Changes the volume and shows it as a dunst progress popup that replaces the previous one.
+# Data: wpctl (wireplumber) on the default PipeWire sink.
 case $1 in
     up)   wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ ;;
     down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;

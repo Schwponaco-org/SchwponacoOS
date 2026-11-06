@@ -1,5 +1,7 @@
 #!/bin/sh
 # Warns once at 10% and once at 5% while on battery; each warning re-arms only after charging back above its level.
+# Data: the kernel's battery files in /sys/class/power_supply/BAT0 (set $BATTERY if yours is BAT1 etc.).
+# Shown by dunst via notify-send (libnotify).
 bat=${BATTERY:-/sys/class/power_supply/BAT0}
 warned=100  # lowest level already warned about this discharge
 

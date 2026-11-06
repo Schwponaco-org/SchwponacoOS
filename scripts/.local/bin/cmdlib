@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# cmdlib: a small menu for the commands I keep retyping. Pick with the arrows or by typing, Enter runs it.
+#
+# Nothing machine-specific lives here; the entries come from:
+#   - WireGuard: /etc/wireguard/*.conf (root-only, so listing asks for sudo). The first "# comment"
+#     in a config is shown as its label, e.g. "# ProtonVPN Secure Core: Iceland via Chile".
+#   - SSH: every non-wildcard `Host` in ~/.ssh/config (kept out of the dotfiles: it holds addresses)
+#   - Tailscale: the tailscale package with tailscaled; location lookups use https://ipinfo.io
+# Needs fzf.
+
+set -u
+
+pick() {  # pick <prompt>: one line from stdin, styled like the rest of the desktop
+  fzf --height=40% --layout=reverse --no-info --no-scrollbar --border=none \
+      --prompt="$1 › " --pointer="›" --delimiter=$'\t' --with-nth=1 \
+      --color='bg+:#191919,fg:#888888,fg+:#ffffff,hl:#bbbbbb,hl+:#ffffff,prompt:#bbbbbb,pointer:#bbbbbb'
+}
+
+where() { curl -s --max-time 5 https://ipinfo.io/json | sed -n 's/^ *"\(ip\|city\|country\|org\)": "\(.*\)",*$/  \1: \2/p'; }
+
+wireguard_down() {
+  for i in $(ip -o link show type wireguard | awk -F': ' '{ print $2 }'); do sudo wg-quick down "$i"; done
+}
+
+wireguard_up() {
+  local conf
+  conf=$(for f in $(sudo find /etc/wireguard -maxdepth 1 -name '*.conf' | sort); do
+           name=$(basename "$f" .conf)
+           printf '%s\t%s\n' "$name  $(sudo grep -m1 '^#' "$f" | sed 's/^# *//')" "$name"
+         done | pick wireguard | cut -f2)
+  [ -n "$conf" ] || return
+  sudo tailscale down 2>/dev/null
+  wireguard_down
+  sudo wg-quick up "$conf" && echo "Connected through $conf:" && where
+}
+
+tailscale_up() {
+  wireguard_down
+  sudo systemctl start tailscaled && sudo tailscale up && echo "Tailscale up:" && where
+}
+
+all_down() {
+  wireguard_down
+  sudo tailscale down 2>/dev/null
+  sudo systemctl stop tailscaled && echo "All VPNs down:" && where
+}
+
+ssh_hosts() {
+  awk 'tolower($1) == "host" { for (i = 2; i <= NF; i++) if ($i !~ /[*?!]/) print $i }' ~/.ssh/config 2>/dev/null
+}
+
+choice=$({
+  printf 'Connect WireGuard…\twg\n'
+  printf 'Connect Tailscale\tts\n'
+  printf 'Disconnect all VPNs\tdown\n'
+  printf 'Where am I?\twhere\n'
+  ssh_hosts | while read -r h; do printf 'SSH %s\tssh %s\n' "$h" "$h"; done
+} | pick cmdlib | cut -f2)
+
+case "$choice" in
+  wg) wireguard_up ;;
+  ts) tailscale_up ;;
+  down) all_down ;;
+  where) where ;;
+  ssh\ *) exec ssh "${choice#ssh }" ;;
+esac

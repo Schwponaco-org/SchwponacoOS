@@ -32,17 +32,16 @@
     background-color: #eb4d4b;
 }
 
-/* scratchpads: icons instead of blocks, in the same colours as the workspace blocks (hidden / open) */
-#workspaces button.special {
-    background-color: transparent;
-    font-size: 1em;
+/* scratchpads: icons in the same colours as the workspace blocks (hidden / open) */
+#custom-claude,
+#custom-magic {
     padding: 0px 6px;
     margin: 0px 2px;
     color: rgb(17, 17, 17);
 }
 
-#workspaces button.special.active {
-    background-color: transparent;
+#custom-claude.active,
+#custom-magic.active {
     color: #BBBBBB;
 }
 

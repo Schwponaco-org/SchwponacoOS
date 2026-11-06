@@ -1,2 +1,22 @@
+# --- Generated or machine state ---
+# ncspot's saved player state
 *.cbor
+__pycache__/
+*.pyc
+*.bak
 
+# --- Built locally, never committed (see SENSITIVE.md) ---
+# Fonts: Helvetica Neue is licensed, and ScratchpadIcons.ttf contains Anthropic's Clawd artwork
+# (build it with waybar/build-scratchpad-icons.py). GRUB's .pf2 fonts are built from Helvetica.
+*.otf
+*.ttf
+*.pf2
+
+# --- Secrets, in case one ever lands in a stowed folder ---
+.credentials*
+*token*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.ssh/

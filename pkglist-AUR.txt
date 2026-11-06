@@ -1,4 +1,0 @@
-brogue-ce
-claude-desktop
-zen-browser-bin
-ttf-jetbrains-mono-nerd

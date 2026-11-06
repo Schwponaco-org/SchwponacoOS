@@ -1,0 +1,24 @@
+# AUR packages. Install yay first (README), then:  sed 's/#.*//' packages/aur.txt | xargs yay -S --needed
+
+# Desktop
+claude-desktop
+zen-browser-bin         # browser; rofi's "!" search opens it
+
+# Everyday apps
+spotify
+jellyfin-desktop-git
+
+# Creative
+opencl-amd              # GPU compute for darktable/Blender on AMD
+
+# Development
+ftxui                   # C++ terminal UI library
+
+# Games
+brogue-ce
+minecraft-launcher
+smassh-bin
+
+# Terminal toys
+hollywood
+calcure

@@ -139,7 +139,7 @@ local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle"}))
@@ -224,6 +224,12 @@ end
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 hl.bind(mainMod .. " + C",         hl.dsp.workspace.toggle_special("claude"))
+-- Claude pulled onto a workspace goes back to its scratchpad
+hl.bind(mainMod .. " + SHIFT + C", function()
+  for _, win in ipairs(hl.get_windows({ class = "com.anthropic.Claude" })) do
+    hl.dispatch(hl.dsp.window.move({ workspace = "special:claude", window = win, follow = false }))
+  end
+end)
 
 -- Cmd+Tab style: hold Super, tap Tab to step through workspaces, let go of Super to switch
 hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("qs ipc call overview next"))
@@ -337,7 +343,7 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
-hl.bind("SHIFT + CTRL + S", hl.dsp.exec_cmd("~/Scripts/screenshot.sh"))
+hl.bind("SHIFT + CTRL + S", hl.dsp.exec_cmd("~/.local/bin/screenshot"))
 
 
 local zenMode = false

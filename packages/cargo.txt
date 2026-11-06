@@ -1,0 +1,5 @@
+# Rust tools from crates.io. After `rustup default stable`:
+#   sed 's/#.*//' packages/cargo.txt | xargs cargo install --locked
+
+rojo                    # Roblox project sync
+cargo-fuzz

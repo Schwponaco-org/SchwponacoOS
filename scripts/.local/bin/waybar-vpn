@@ -1,0 +1,32 @@
+#!/bin/sh
+# Waybar module: shows the active VPN (any WireGuard interface, else Tailscale) and where traffic exits.
+# Prints Waybar JSON; the dashboard (hypr/dashboard.py) reads the same output.
+#
+# Data sources:
+#   - interfaces: `ip link` (iproute2), WireGuard links of any name, plus tailscale0
+#   - Tailscale state: `tailscale status` (tailscale package, tailscaled running)
+#   - exit location: https://ipinfo.io/json, free without an account (50k lookups/month).
+#     Looked up only when the interface changes, then cached in $XDG_RUNTIME_DIR.
+
+cache="${XDG_RUNTIME_DIR:-/tmp}/waybar-vpn"
+
+active=$(ip -o link show type wireguard 2>/dev/null | awk -F': ' 'NR == 1 { print $2 }')
+if [ -z "$active" ] && ip link show tailscale0 >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
+  active=tailscale0
+fi
+
+if [ -z "$active" ]; then
+  rm -f "$cache"
+  echo '{"text":"󰌿 Disconnected","class":"disconnected"}'
+  exit
+fi
+
+# cache line: "<interface> <location>"
+location=$(awk -v i="$active" '$1 == i { sub(/^[^ ]+ /, ""); print }' "$cache" 2>/dev/null)
+if [ -z "$location" ]; then
+  location=$(curl -s --max-time 3 https://ipinfo.io/json |
+    sed -n 's/^ *"\(city\|country\)": "\(.*\)",*$/\2/p' | paste -sd, - | sed 's/,/, /')
+  [ -n "$location" ] && echo "$active $location" > "$cache"
+fi
+
+echo "{\"text\":\"󰌾 $active\",\"class\":\"connected\",\"tooltip\":\"VPN active: $active${location:+ · $location}\"}"

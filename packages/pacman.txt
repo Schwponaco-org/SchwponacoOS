@@ -1,0 +1,171 @@
+# Official repo packages, for a plain Arch install made with:  pacstrap /mnt base linux linux-firmware
+# Install:  sed 's/#.*//' packages/pacman.txt | xargs sudo pacman -S --needed
+# One package per line; "#" starts a comment. Steam needs [multilib] enabled in /etc/pacman.conf first.
+
+# --- System ---------------------------------------------------------------------------------------
+base-devel              # makepkg, needed for yay/AUR
+amd-ucode               # CPU microcode (AMD; use intel-ucode on Intel)
+sof-firmware            # laptop audio firmware
+grub
+efibootmgr
+cryptsetup              # LUKS disk encryption
+sudo
+networkmanager
+bluez
+bluez-utils
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+alsa-utils
+mesa
+vulkan-radeon           # AMD GPU Vulkan driver
+power-profiles-daemon
+upower
+firewalld
+openssh
+man-db
+man-pages
+xdg-user-dirs
+xdg-utils
+reflector               # picks fast mirrors
+pacman-contrib          # paccache, checkupdates
+smartmontools
+git
+stow                    # links these dotfiles into place
+rsync
+wget
+zip
+unzip
+unrar
+
+# --- Fonts ----------------------------------------------------------------------------------------
+# Helvetica Neue is licensed and not in any repo; see README.
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+ttf-dejavu
+ttf-liberation
+ttf-jetbrains-mono
+ttf-jetbrains-mono-nerd # icons in waybar, kitty and btop
+
+# --- Desktop: Hyprland ----------------------------------------------------------------------------
+hyprland
+xorg-xwayland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+quickshell              # Super+Tab workspace overview
+waybar
+rofi
+dunst
+libnotify               # notify-send
+kitty
+swayidle
+swaylock
+grim                    # screenshot
+slurp                   # screenshot
+wl-clipboard            # screenshot
+brightnessctl
+playerctl
+pavucontrol
+blueman
+lxqt-policykit          # password prompts for GUI apps
+gnome-keyring
+wev                     # shows key names, for writing binds
+
+# --- Dashboard and scripts ------------------------------------------------------------------------
+python
+python-gobject          # dashboard (GTK 4)
+gtk4                    # dashboard
+vte4                    # dashboard's embedded btop
+python-psutil           # dashboard's CPU/memory/disk rings
+python-fonttools        # waybar/build-scratchpad-icons.py
+imagemagick             # grub/install-theme.sh
+fzf                     # cmdlib
+wireguard-tools         # cmdlib, waybar-vpn
+tailscale               # cmdlib, waybar-vpn
+
+# --- Terminal -------------------------------------------------------------------------------------
+fish
+neovim
+btop
+superfile               # file manager (Super+E)
+ncspot                  # Spotify TUI
+cava
+swayimg
+zathura
+zathura-pdf-poppler
+
+# --- Media codecs ---------------------------------------------------------------------------------
+gst-libav
+gst-plugin-pipewire
+gst-plugins-bad
+gst-plugins-ugly
+
+# --- Everyday apps --------------------------------------------------------------------------------
+discord
+signal-desktop
+obsidian
+chromium
+qbittorrent
+mpv
+vlc
+yt-dlp
+
+# --- Creative -------------------------------------------------------------------------------------
+ardour
+darktable
+gimp
+kdenlive
+obs-studio
+freecad
+
+# --- Development ----------------------------------------------------------------------------------
+github-cli
+docker
+docker-compose
+go
+rustup                  # then: rustup default stable
+opam
+cmake
+clang
+gdb
+nasm
+yasm
+nlohmann-json
+uv
+npm
+
+# --- Games ----------------------------------------------------------------------------------------
+steam                   # needs [multilib]
+wine
+
+# --- LaTeX (nvim/.config/nvim/lua/config/LATEX.md) ------------------------------------------------
+texlive-basic
+texlive-bibtexextra
+texlive-binextra
+texlive-context
+texlive-fontsextra
+texlive-fontsrecommended
+texlive-fontutils
+texlive-formatsextra
+texlive-games
+texlive-humanities
+texlive-latex
+texlive-latexextra
+texlive-latexrecommended
+texlive-luatex
+texlive-mathscience
+texlive-metapost
+texlive-music
+texlive-pictures
+texlive-plaingeneric
+texlive-pstricks
+texlive-publishers
+texlive-xetex
+
+# --- Terminal toys --------------------------------------------------------------------------------
+fastfetch
+tldr
+cool-retro-term

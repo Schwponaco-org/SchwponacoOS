@@ -1,0 +1,6 @@
+# Flatpak apps (Flathub). Install flatpak from pacman, then:
+#   sed 's/#.*//' packages/flatpak.txt | xargs flatpak install -y flathub
+
+org.blender.Blender         # creative
+org.vinegarhq.Sober         # Roblox player
+org.vinegarhq.Vinegar       # Roblox Studio

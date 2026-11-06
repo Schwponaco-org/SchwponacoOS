@@ -1,6 +1,10 @@
 #!/bin/sh
 # Installs the Helvetica GRUB theme. Run as your user; it asks for sudo for the /boot and /etc steps.
 # The .pf2 fonts are built from your local Helvetica Neue so the licensed font never lands in this repo.
+# Not in the repo, needed here:
+#   - Helvetica Neue .otf files (licensed; bought/downloaded separately) in ~/.local/share/fonts/Helvetica/
+#   - the background photo ~/Pictures/mies.jpg (any JPEG works)
+# Tools: grub (grub-mkfont), imagemagick (magick).
 set -e
 
 theme=$(dirname "$(readlink -f "$0")")/helvetica

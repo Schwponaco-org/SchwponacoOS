@@ -7,6 +7,8 @@
     // Modules placement
     "modules-left": [
         "hyprland/workspaces",
+        "custom/claude",
+        "custom/magic",
         "custom/wireguard"
     ],
     "modules-center": [
@@ -19,21 +21,28 @@
     ],
 
     "custom/wireguard": {
-    	"exec": "~/Scripts/WaybarVPN.sh",
+    	"exec": "~/.local/bin/waybar-vpn",
 	    "interval": 5,
 	    "return-type": "json"
     },
 
     "hyprland/workspaces":{
-        // normal workspaces stay icon-less blocks; scratchpads get an icon, keyed by name
+        // normal workspaces stay icon-less blocks
         "format": "{icon}",
-        "show-special": true,
-        "format-icons": {
-            // Scratchpad Icons: font in ~/.fonts built by build-scratchpad-icons.py, both glyphs at the Nerd icons' height
-            "claude": "<span font_family='Scratchpad Icons'>\ue000</span>",  // Clawd
-            "magic": "<span font_family='Scratchpad Icons'>\ue001</span>",   // rounded square
-            "default": ""
-        }
+        "format-icons": { "default": "" }
+    },
+
+    // scratchpads: own modules, since show-special loses them when windows move on and off.
+    // Icons from the Scratchpad Icons font in ~/.fonts (build-scratchpad-icons.py)
+    "custom/claude": {
+        "exec": "~/.config/waybar/scratchpad.py claude \ue000",  // Clawd
+        "return-type": "json",
+        "on-click": "hyprctl dispatch 'hl.dsp.workspace.toggle_special(\"claude\")'"
+    },
+    "custom/magic": {
+        "exec": "~/.config/waybar/scratchpad.py magic \ue001",  // rounded square
+        "return-type": "json",
+        "on-click": "hyprctl dispatch 'hl.dsp.workspace.toggle_special(\"magic\")'"
     },
 
     "clock": {
