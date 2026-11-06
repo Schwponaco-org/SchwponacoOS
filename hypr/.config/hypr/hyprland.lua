@@ -233,23 +233,8 @@ hl.bind(mainMod .. " + SHIFT + C", function()
 end)
 
 -- Cmd+Tab style: hold Super, tap Tab to step through workspaces, let go of Super to switch
--- Releasing Super is also caught here, because the overview misses it if Super comes up
--- before the overview has keyboard focus (e.g. Super released before Tab).
-local overview_open = false
-hl.bind(mainMod .. " + TAB", function()
-  overview_open = true
-  hl.dispatch(hl.dsp.exec_cmd("qs ipc call overview next"))
-end)
-hl.bind(mainMod .. " + SHIFT + TAB", function()
-  overview_open = true
-  hl.dispatch(hl.dsp.exec_cmd("qs ipc call overview prev"))
-end)
-hl.bind(mainMod .. " + Super_L", function()
-  if overview_open then
-    overview_open = false
-    hl.dispatch(hl.dsp.exec_cmd("qs ipc call overview release"))
-  end
-end, { release = true, non_consuming = true })
+hl.bind(mainMod .. " + TAB",         hl.dsp.exec_cmd("qs ipc call overview next"))
+hl.bind(mainMod .. " + SHIFT + TAB", hl.dsp.exec_cmd("qs ipc call overview prev"))
 
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))

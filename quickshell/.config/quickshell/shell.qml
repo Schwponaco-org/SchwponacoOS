@@ -2,7 +2,7 @@
 // Hold Super and tap Tab to step through workspaces (Shift+Tab steps back, both wrap around);
 // releasing Super switches to the selected one. While open, h/l/arrows also move,
 // Enter/o/space go, Esc/q close, and clicking a card goes there.
-// Driven from Hyprland with: qs ipc call overview next|prev|release
+// Driven from Hyprland with: qs ipc call overview next|prev
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -15,35 +15,57 @@ ShellRoot {
     property bool open: false
     property int selected: 0
     property string activeName: ""
+    property bool watching: false  // super-held.py is running: it reports Super's state for this round
     // with the Lua config Quickshell reads every workspace id as -1, so sort and switch by name
     readonly property var workspaces: Hyprland.workspaces.values
         .filter(w => !w.name.startsWith("special:"))
         .sort((a, b) => parseInt(a.name) - parseInt(b.name))
 
-    // first press opens with the neighbour already selected, like Cmd+Tab; later presses keep stepping
+    // first press selects the neighbour, like Cmd+Tab; later presses keep stepping. The overview is only
+    // open while Super is held (super-held.py watches the key): a quick tap switches without showing it.
     function step(dir) {
         const n = workspaces.length
         if (!n) return
-        if (!open) {
-            Hyprland.refreshToplevels()  // fresh window positions for the previews
+        if (!open && !watching) {
             selected = Math.max(0, workspaces.findIndex(w => w.name === activeName))
-            open = true
+            watching = true
+            superHeld.running = true
         }
         selected = (selected + dir + n) % n
     }
 
-    function go(ws) {
-        if (!open) return  // the release can arrive twice: from this window and from Hyprland
-        open = false
+    function switchTo(ws) {
         Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${ws.name} })`])
+    }
+
+    function go(ws) {
+        if (!open) return  // Super's release arrives from both super-held.py and this window
+        open = false
+        switchTo(ws)
+    }
+
+    Process {
+        id: superHeld
+        command: [Quickshell.shellPath("super-held.py")]
+        stdout: SplitParser {
+            // Super is down: show the overview
+            onRead: line => {
+                if (line !== "held") return
+                Hyprland.refreshToplevels()  // fresh window positions for the previews
+                root.open = true
+            }
+        }
+        onExited: code => {
+            root.watching = false
+            if (code === 0) root.go(root.workspaces[root.selected])                    // Super released
+            else if (!root.open) root.switchTo(root.workspaces[root.selected])       // quick tap
+        }
     }
 
     IpcHandler {
         target: "overview"
         function next(): void { root.step(1) }
         function prev(): void { root.step(-1) }
-        // Super released, reported by Hyprland (hyprland.lua): switch to the selected workspace
-        function release(): void { root.go(root.workspaces[root.selected]) }
     }
 
     // Quickshell can't see the focused workspace under the Lua config, so follow Hyprland's events
