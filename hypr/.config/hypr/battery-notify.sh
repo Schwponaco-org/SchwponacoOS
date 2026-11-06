@@ -3,7 +3,8 @@
 # Data: the kernel's battery files in /sys/class/power_supply/BAT0 (set $BATTERY if yours is BAT1 etc.).
 # Shown by dunst via notify-send (libnotify).
 # Also switches the power profile when the charger is plugged or unplugged: power-saver on battery,
-# balanced on AC (power-profiles-daemon). Only on a change, so a profile picked by hand stays until then.
+# balanced on AC (power-profiles-daemon), within 30 seconds. Only on a change, so a profile picked by hand
+# stays until then.
 bat=${BATTERY:-/sys/class/power_supply/BAT0}
 warned=100  # lowest level already warned about this discharge
 on_battery=""  # unknown until the first check, so the right profile is set at login
@@ -27,5 +28,5 @@ while :; do
             warned=10
         fi
     fi
-    sleep 5  # quick enough that plugging in or out switches the profile almost at once
+    sleep 30
 done
