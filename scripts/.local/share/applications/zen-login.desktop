@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Zen Login
+Comment=Zen with only your saved logins (zen-login)
+Exec=zen-login %U
+Icon=zen-browser
+Categories=Network;WebBrowser;

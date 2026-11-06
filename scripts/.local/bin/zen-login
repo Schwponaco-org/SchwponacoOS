@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""Zen with your logins and nothing else.
+
+Every launch builds a fresh Zen profile in RAM (your normal Zen's user.js and extensions), puts in only the
+cookies of the sites listed in ~/.config/zen-login/sites, and runs Zen. On exit it keeps those sites' own
+cookies, encrypts them and deletes the whole profile: no history, cache or other site data survives.
+
+  zen-login [url ...]   start (asks for the passphrase when it needs to decrypt)
+  zen-login --setup     create the gpg key (you pick the passphrase) and a starter sites file
+
+Data:
+  ~/.config/zen-login/sites                  one domain per line; subdomains are included. Not in the repo.
+  ~/.local/share/zen-login/cookies.sqlite.gpg  the cookies, encrypted to the gpg key "zen-login"
+  Zen's default profile (~/.config/zen/profiles.ini): user.js and extensions/*.xpi are copied from it
+Needs gpg with a graphical pinentry, and zen-browser.
+"""
+import fcntl
+import os
+import shutil
+import sqlite3
+import subprocess
+import sys
+import tempfile
+
+KEY = "zen-login"
+SITES = os.path.expanduser("~/.config/zen-login/sites")
+STORE = os.path.expanduser("~/.local/share/zen-login/cookies.sqlite.gpg")
+ZEN = os.path.expanduser("~/.config/zen")
+RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
+
+# on top of the normal user.js: cookies must reach disk (RAM here) so they can be kept; nothing else
+OVERRIDES = """
+// zen-login: a normal (non-private) window so cookies are written; zen-login wipes the profile itself
+user_pref("browser.privatebrowsing.autostart", false);
+user_pref("privacy.sanitize.sanitizeOnShutdown", false);
+user_pref("places.history.enabled", false);
+user_pref("browser.cache.disk.enable", false);
+user_pref("browser.sessionstore.resume_from_crash", false);
+user_pref("extensions.autoDisableScopes", 0);            // the copied extensions start enabled
+user_pref("zen.welcome-screen.seen", true);              // fresh profile every time: skip first-run pages
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+"""
+
+
+def sites():
+    with open(SITES) as f:
+        return [l.split("#")[0].strip().lstrip(".").lower() for l in f if l.split("#")[0].strip()]
+
+
+def wanted(host, domains):
+    host = host.lstrip(".").lower()
+    return any(host == d or host.endswith("." + d) for d in domains)
+
+
+def main_profile():
+    inst = False
+    for line in open(os.path.join(ZEN, "profiles.ini")):
+        line = line.strip()
+        if line.startswith("["):
+            inst = line.startswith("[Install")
+        elif inst and line.startswith("Default="):
+            return os.path.join(ZEN, line.split("=", 1)[1])
+    sys.exit("No Zen profile found; start Zen once first.")
+
+
+def keep_only_listed(db, out, domains):
+    """Copy db to out with only the listed sites' own cookies (no partitioned ones), compacted so
+    deleted cookies don't linger in free pages."""
+    c = sqlite3.connect(db)
+    rows = c.execute("select id, host, originAttributes from moz_cookies").fetchall()
+    drop = [(i,) for i, host, attrs in rows if not wanted(host, domains) or "partitionKey" in attrs]
+    c.executemany("delete from moz_cookies where id = ?", drop)
+    c.commit()
+    c.execute("vacuum into ?", (out,))
+    c.close()
+    return len(rows) - len(drop)
+
+
+def setup():
+    if subprocess.run(["gpg", "--list-secret-keys", KEY], capture_output=True).returncode != 0:
+        print("Creating the gpg key; pick the passphrase you'll type when zen-login starts.")
+        subprocess.run(["gpg", "--quick-generate-key", KEY, "ed25519", "default", "never"], check=True)
+        fpr = subprocess.run(["gpg", "--list-keys", "--with-colons", KEY], capture_output=True, text=True).stdout
+        fpr = next(l.split(":")[9] for l in fpr.splitlines() if l.startswith("fpr"))
+        subprocess.run(["gpg", "--quick-add-key", fpr, "cv25519", "encr", "never"], check=True)
+    if not os.path.exists(SITES):
+        os.makedirs(os.path.dirname(SITES), exist_ok=True)
+        with open(SITES, "w") as f:
+            f.write("# Sites whose login cookies zen-login keeps (subdomains included)\ngithub.com\n")
+    print(f"Ready. Edit {SITES}, then run zen-login.")
+
+
+def run(urls):
+    domains = sites()
+    lock = open(os.path.join(RUNTIME, "zen-login.lock"), "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        sys.exit("zen-login is already running.")
+
+    main = main_profile()
+    profile = tempfile.mkdtemp(prefix="zen-login-", dir=RUNTIME)  # RAM; only this user can read it
+    try:
+        with open(os.path.join(main, "user.js")) as f:
+            userjs = f.read()
+        with open(os.path.join(profile, "user.js"), "w") as f:
+            f.write(userjs + OVERRIDES)
+        ext = os.path.join(main, "extensions")
+        if os.path.isdir(ext):
+            os.makedirs(os.path.join(profile, "extensions"))
+            for x in os.listdir(ext):
+                if x.endswith(".xpi"):
+                    shutil.copy(os.path.join(ext, x), os.path.join(profile, "extensions", x))
+
+        if os.path.exists(STORE):
+            with open(os.path.join(profile, "cookies.sqlite"), "wb") as out:
+                subprocess.run(["gpg", "--quiet", "--batch", "--decrypt", STORE], stdout=out, check=True)
+
+        subprocess.run(["zen-browser", "--no-remote", "--profile", profile, *urls])
+
+        db = os.path.join(profile, "cookies.sqlite")
+        if os.path.exists(db):
+            clean = os.path.join(profile, "keep.sqlite")
+            kept = keep_only_listed(db, clean, domains)
+            os.makedirs(os.path.dirname(STORE), exist_ok=True)
+            subprocess.run(["gpg", "--quiet", "--batch", "--yes", "--encrypt", "--recipient", KEY,
+                            "--output", STORE + ".new", clean], check=True)
+            os.replace(STORE + ".new", STORE)  # the old file stays until the new one is complete
+            print(f"Kept {kept} cookies for {', '.join(domains)}.")
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    if sys.argv[1:2] == ["--setup"]:
+        setup()
+    else:
+        run(sys.argv[1:])

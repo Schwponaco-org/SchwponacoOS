@@ -21,7 +21,7 @@ folder. For example, `kitty/.config/kitty/kitty.conf` becomes `~/.config/kitty/k
 | `nvim` | Neovim, with a LaTeX setup (`nvim/.config/nvim/lua/config/LATEX.md`) |
 | `btop` | System monitor; the dashboard's process panel uses these settings |
 | `superfile`, `cava`, `swayimg` | File manager, audio visualiser, image viewer |
-| `scripts` | `~/.local/bin`: `cmdlib` (VPN/SSH menu), `screenshot`, `waybar-vpn`, `open-folder` |
+| `scripts` | `~/.local/bin`: `cmdlib` (VPN/SSH menu), `screenshot`, `waybar-vpn`, `open-folder`, `zen-login` |
 
 Not stow packages:
 
@@ -150,6 +150,10 @@ curl -fsSL https://claude.ai/install.sh | bash
   clipboard.
 - `open-folder`: opens folders in superfile; it's the default app for folders. It also turns KDE Connect's
   "Browse this device" link into the phone's mounted storage.
+- `zen-login`: Zen with your logins and nothing else. Each launch builds a fresh profile in RAM, adds only
+  the cookies of the sites in `~/.config/zen-login/sites`, and on exit encrypts those sites' cookies again
+  and deletes everything else. So you skip 2FA without keeping history or other site data. Run
+  `zen-login --setup` once to create its gpg key; you type its passphrase when zen-login starts.
 
 ## Zen
 
