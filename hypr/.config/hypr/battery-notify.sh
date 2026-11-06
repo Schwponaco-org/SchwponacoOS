@@ -2,14 +2,23 @@
 # Warns once at 10% and once at 5% while on battery; each warning re-arms only after charging back above its level.
 # Data: the kernel's battery files in /sys/class/power_supply/BAT0 (set $BATTERY if yours is BAT1 etc.).
 # Shown by dunst via notify-send (libnotify).
+# Also switches the power profile when the charger is plugged or unplugged: power-saver on battery,
+# balanced on AC (power-profiles-daemon). Only on a change, so a profile picked by hand stays until then.
 bat=${BATTERY:-/sys/class/power_supply/BAT0}
 warned=100  # lowest level already warned about this discharge
+on_battery=""  # unknown until the first check, so the right profile is set at login
 
 while :; do
     cap=$(cat "$bat/capacity")
     [ "$cap" -gt 10 ] && warned=100
     [ "$cap" -gt 5 ] && [ "$warned" -lt 10 ] && warned=10
-    if [ "$(cat "$bat/status")" = Discharging ]; then
+    status=$(cat "$bat/status")
+    now=$([ "$status" = Discharging ] && echo yes || echo no)
+    if [ "$now" != "$on_battery" ]; then
+        on_battery=$now
+        powerprofilesctl set "$([ "$now" = yes ] && echo power-saver || echo balanced)"
+    fi
+    if [ "$status" = Discharging ]; then
         if [ "$cap" -le 5 ] && [ "$warned" -gt 5 ]; then
             notify-send -a battery -u critical -h string:x-dunst-stack-tag:battery "Battery critical" "$cap% left, plug in now"
             warned=5
