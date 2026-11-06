@@ -37,11 +37,13 @@
     "custom/claude": {
         "exec": "~/.config/waybar/scratchpad.py claude \ue000",  // Clawd
         "return-type": "json",
+        "restart-interval": 2,  // restart the script if it ever exits
         "on-click": "hyprctl dispatch 'hl.dsp.workspace.toggle_special(\"claude\")'"
     },
     "custom/magic": {
         "exec": "~/.config/waybar/scratchpad.py magic \ue001",  // rounded square
         "return-type": "json",
+        "restart-interval": 2,
         "on-click": "hyprctl dispatch 'hl.dsp.workspace.toggle_special(\"magic\")'"
     },
 

@@ -27,7 +27,8 @@ last = state()
 print(last, flush=True)
 with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
     s.connect(sock)
-    for line in s.makefile():
+    # window titles in the events can hold any bytes; a strict decode would kill the module
+    for line in s.makefile(encoding="utf-8", errors="replace"):
         # event names differ under the Lua config, so re-check on anything workspace-related
         if "special" in line or "workspace" in line or "window" in line or "mon" in line:
             current = state()
