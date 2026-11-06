@@ -85,6 +85,8 @@ imagemagick             # grub/install-theme.sh
 fzf                     # cmdlib
 wireguard-tools         # cmdlib, waybar-vpn
 tailscale               # cmdlib, waybar-vpn
+kdeconnect              # phone link (needs the firewall's kdeconnect service on your home zone)
+sshfs                   # KDE Connect's "Browse this device"
 
 # --- Terminal -------------------------------------------------------------------------------------
 fish
