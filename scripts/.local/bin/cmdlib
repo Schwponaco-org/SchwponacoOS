@@ -24,6 +24,8 @@ wireguard_down() {
 
 wireguard_up() {
   local conf
+  # ask for the password up front: inside the menu below, sudo's prompt and fzf fight over the terminal
+  sudo -v || return
   conf=$(for f in $(sudo find /etc/wireguard -maxdepth 1 -name '*.conf' | sort); do
            name=$(basename "$f" .conf)
            printf '%s\t%s\n' "$name  $(sudo grep -m1 '^#' "$f" | sed 's/^# *//')" "$name"
