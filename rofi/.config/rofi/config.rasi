@@ -1,8 +1,8 @@
 configuration {
-    /* "_web" first: combi hands unmatched typed text to its first mode; the odd name keeps
-       combi's "!mode" shortcut from catching searches */
-    modi: "drun,window,_web:~/.config/rofi/web-search.sh";
-    combi-modes: "_web,drun";
+    /* "_prefix" first: combi hands unmatched typed text to its first mode ("!web search",
+       "#github repo"); the odd name keeps combi's "!mode" shortcut from catching searches */
+    modi: "drun,window,_prefix:~/.config/rofi/prefixes.sh";
+    combi-modes: "_prefix,drun";
     combi-hide-mode-prefix: true;
     show-icons: false;
     terminal: "kitty";

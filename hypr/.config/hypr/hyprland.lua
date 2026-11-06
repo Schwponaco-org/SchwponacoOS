@@ -12,7 +12,7 @@ hl.monitor({
 
 local terminal    = "kitty"
 local fileManager = "kitty spf"
-local menu        = "rofi -show combi"  -- apps, plus "!query" to search in Zen (see rofi config)
+local menu        = "rofi -show combi"  -- apps; "!query" searches the web, "#name" opens a GitHub repo (rofi/prefixes.sh)
 
 
 -- AUTOSTART --

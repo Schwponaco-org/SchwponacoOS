@@ -14,7 +14,7 @@ folder. For example, `kitty/.config/kitty/kitty.conf` becomes `~/.config/kitty/k
 | `hypr` | Hyprland (Lua config), the workspace 1 dashboard, volume popup, low-battery warnings |
 | `waybar` | Top bar, with scratchpad icons and the VPN indicator |
 | `quickshell` | Super+Tab workspace overview |
-| `rofi` | App launcher; type `!query` to search the web in Zen |
+| `rofi` | App launcher; `!query` searches the web, `#name` opens one of your GitHub repos |
 | `dunst` | Notifications |
 | `kitty` | Terminal |
 | `fish` | Shell |
@@ -124,7 +124,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 | Keys | Action |
 | --- | --- |
 | Super+Return | Terminal |
-| Super+D | Launcher (`!query` searches the web) |
+| Super+D | Launcher (`!query` searches the web, `#name` opens a GitHub repo) |
 | Super+E | File manager |
 | Super+Tab | Workspace overview: hold Super, tap Tab, let go to switch |
 | Super+C / Super+Shift+C | Claude scratchpad / send Claude back to it |
