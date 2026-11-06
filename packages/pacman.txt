@@ -91,7 +91,6 @@ fish
 neovim
 btop
 superfile               # file manager (Super+E)
-ncspot                  # Spotify TUI
 cava
 swayimg
 zathura
@@ -168,4 +167,3 @@ texlive-xetex
 # --- Terminal toys --------------------------------------------------------------------------------
 fastfetch
 tldr
-cool-retro-term

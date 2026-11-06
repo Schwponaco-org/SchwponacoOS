@@ -1,6 +1,4 @@
 # --- Generated or machine state ---
-# ncspot's saved player state
-*.cbor
 __pycache__/
 *.pyc
 *.bak

@@ -20,7 +20,7 @@ folder. For example, `kitty/.config/kitty/kitty.conf` becomes `~/.config/kitty/k
 | `fish` | Shell |
 | `nvim` | Neovim, with a LaTeX setup (`nvim/.config/nvim/lua/config/LATEX.md`) |
 | `btop` | System monitor; the dashboard's process panel uses these settings |
-| `superfile`, `ncspot`, `cava`, `swayimg` | File manager, Spotify player, audio visualiser, image viewer |
+| `superfile`, `cava`, `swayimg` | File manager, audio visualiser, image viewer |
 | `scripts` | `~/.local/bin`: `cmdlib` (VPN/SSH menu), `screenshot`, `waybar-vpn` |
 
 Not stow packages:
@@ -75,7 +75,7 @@ sed 's/#.*//' packages/cargo.txt | xargs cargo install --locked
 
 ```bash
 cd ~/dotfiles
-stow btop cava dunst fish hypr kitty ncspot nvim quickshell rofi scripts superfile swayimg waybar
+stow btop cava dunst fish hypr kitty nvim quickshell rofi scripts superfile swayimg waybar
 ```
 
 If stow reports a conflict, a real file already exists where a link should go, for example a default

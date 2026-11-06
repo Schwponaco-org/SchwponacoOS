@@ -17,8 +17,3 @@ ftxui                   # C++ terminal UI library
 # Games
 brogue-ce
 minecraft-launcher
-smassh-bin
-
-# Terminal toys
-hollywood
-calcure
