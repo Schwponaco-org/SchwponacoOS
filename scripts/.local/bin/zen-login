@@ -92,6 +92,7 @@ def setup():
 
 
 def run(urls):
+    os.umask(0o077)  # everything zen-login writes is readable by you only
     domains = sites()
     lock = open(os.path.join(RUNTIME, "zen-login.lock"), "w")
     try:
