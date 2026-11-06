@@ -20,7 +20,7 @@ local menu        = "rofi -show combi"  -- apps; "!query" searches the web, "#na
 hl.on("hyprland.start", function ()
   hl.exec_cmd("waybar")
   hl.exec_cmd("lxqt-policykit-agent")
-  hl.exec_cmd("swayidle -w timeout 300 'swaylock -f -c 000000 --indicator-thickness 5' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' before-sleep 'swaylock -f -c 000000 --indicator-thickness 5'")
+  hl.exec_cmd("hypridle")  -- idle: lock, screen off, respects video playback (hypridle.conf)
   hl.exec_cmd("python3 ~/.config/hypr/dashboard.py")
   hl.exec_cmd("~/.config/hypr/battery-notify.sh")
   hl.exec_cmd("claude-desktop")

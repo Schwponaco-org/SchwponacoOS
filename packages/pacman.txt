@@ -61,7 +61,7 @@ rofi
 dunst
 libnotify               # notify-send
 kitty
-swayidle
+hypridle                # idle: lock, screen off; stays awake while video plays
 swaylock
 grim                    # screenshot
 slurp                   # screenshot
