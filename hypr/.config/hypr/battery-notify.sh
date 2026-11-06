@@ -27,5 +27,5 @@ while :; do
             warned=10
         fi
     fi
-    sleep 30
+    sleep 5  # quick enough that plugging in or out switches the profile almost at once
 done
