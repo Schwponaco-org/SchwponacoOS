@@ -1,4 +1,4 @@
-# dotfiles
+# SchwponacoOS
 
 Hyprland on plain Arch, Swiss style: Helvetica, `#191919` bars, `#111111` background, `#BBBBBB` accents.
 
@@ -43,7 +43,7 @@ boot into it. Before step 3, enable `[multilib]` in `/etc/pacman.conf`; Steam ne
 
 ```bash
 sudo pacman -S --needed git stow
-git clone https://github.com/cowmuncher/dotfiles ~/dotfiles
+git clone https://github.com/cowmuncher/SchwponacoOS ~/SchwponacoOS
 ```
 
 ### 3. Install packages
@@ -51,7 +51,7 @@ git clone https://github.com/cowmuncher/dotfiles ~/dotfiles
 The lists use one package per line, and `#` starts a comment.
 
 ```bash
-cd ~/dotfiles
+cd ~/SchwponacoOS
 sed 's/#.*//' packages/pacman.txt | xargs sudo pacman -S --needed
 ```
 
@@ -74,7 +74,7 @@ sed 's/#.*//' packages/cargo.txt | xargs cargo install --locked
 ### 4. Link the configs
 
 ```bash
-cd ~/dotfiles
+cd ~/SchwponacoOS
 stow btop cava dunst fish hypr kitty nvim quickshell rofi scripts superfile swayimg waybar
 ```
 
@@ -101,7 +101,7 @@ Then refresh the font cache with `fc-cache -f`.
 ```bash
 sudo systemctl enable --now NetworkManager bluetooth power-profiles-daemon firewalld
 chsh -s /usr/bin/fish
-~/dotfiles/grub/install-theme.sh
+~/SchwponacoOS/grub/install-theme.sh
 ```
 
 `cmdlib` starts and stops `tailscaled` itself, so it doesn't need to be enabled.
