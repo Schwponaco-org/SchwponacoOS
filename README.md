@@ -21,7 +21,7 @@ folder. For example, `kitty/.config/kitty/kitty.conf` becomes `~/.config/kitty/k
 | `nvim` | Neovim, with a LaTeX setup (`nvim/.config/nvim/lua/config/LATEX.md`) |
 | `btop` | System monitor; the dashboard's process panel uses these settings |
 | `superfile`, `cava`, `swayimg` | File manager, audio visualiser, image viewer |
-| `scripts` | `~/.local/bin`: `cmdlib` (VPN/SSH menu), `screenshot`, `waybar-vpn` |
+| `scripts` | `~/.local/bin`: `cmdlib` (VPN/SSH menu), `screenshot`, `waybar-vpn`, `open-folder` |
 
 Not stow packages:
 
@@ -146,3 +146,5 @@ curl -fsSL https://claude.ai/install.sh | bash
 - `waybar-vpn`: shows the active VPN in waybar, and where traffic exits (looked up at ipinfo.io).
 - `screenshot`: drag out a region; the image is saved to `~/Pictures/Screenshots` and copied to the
   clipboard.
+- `open-folder`: opens folders in superfile; it's the default app for folders. It also turns KDE Connect's
+  "Browse this device" link into the phone's mounted storage.

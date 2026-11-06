@@ -1,0 +1,17 @@
+#!/bin/sh
+# Opens a folder or folder URL in superfile (kitty). The default app for folders (superfile.desktop).
+# KDE Connect's "Browse this device" passes kdeconnect://<device id>; the phone itself is mounted by
+# KDE Connect (sshfs) at $XDG_RUNTIME_DIR/<device id>, and its internal storage is storage/emulated/0.
+
+target=$1
+case $target in
+  kdeconnect://*)
+    id=${target#kdeconnect://}; id=${id%%/*}
+    target="$XDG_RUNTIME_DIR/$id"
+    [ -d "$target/storage/emulated/0" ] && target="$target/storage/emulated/0" ;;
+  file://*)
+    # strip the scheme and decode %XX escapes (spaces etc.)
+    target=$(printf '%b' "$(printf '%s' "${target#file://}" | sed 's/%\([0-9A-Fa-f][0-9A-Fa-f]\)/\\x\1/g')") ;;
+esac
+
+exec kitty spf "$target"
